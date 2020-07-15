@@ -1,0 +1,455 @@
+#include<vector>
+#include<fstream>
+#include<iostream>
+#include<string>
+#include<iomanip>
+using namespace std;
+int WIDTH_SIZE1 = 35;		//for title
+int WIDTH_SIZE2 = 22;		//for Author........for type..its equal to WIDTH_SIZE2/2
+int WIDTH_SIZE3 = 4;		//for year and number of pages/// ....num of pages  = WIDTH_SIZE3+2
+int TOTAL_WIDTH_SIZE = WIDTH_SIZE1 + WIDTH_SIZE2 + (WIDTH_SIZE2/2) + WIDTH_SIZE3*2 +2;
+
+class Book {
+	int date_pub, num_pages;		//date of publication
+	string title, author, type;		//information of title and author
+public:
+	//constructors and destructors:
+	Book();				
+	Book(const int &,const int &,const string &,const string &, const string &);
+	Book(const Book &bk);
+	~Book();
+	//input and output:
+	friend istream& operator>>(istream &in,Book &bk);
+	friend ostream& operator<<(ostream &out,const Book &bk);
+	// getters and setters :
+	string getTitle() const;
+	string getAuthor() const;
+	string getType() const;
+	int getDate_publication() const;
+	int getPages() const;
+	
+	void setTitle(const string &);
+	void setAuthor(const string &);
+	void setDate(const int &);
+	void setPages(const int &);
+	void setType(const string &);
+	//void Print_On_file(fstream &);
+	//assignment operator:
+	Book& operator=(const Book&);
+};
+Book::Book() {
+	title = "";
+	author = "";
+	date_pub = 0;
+}
+Book::Book(const int &date_pub,const int &pages, const string &title,const string &author, const string &type) {
+	this->date_pub = date_pub;
+	this->title = title;
+	this->author = author;
+	this->type = type;
+	this->num_pages = pages;
+}
+Book::Book(const Book &bk) {
+	this->date_pub = bk.getDate_publication();
+	this->title = bk.getTitle();
+	this->author = bk.getAuthor();
+	this->num_pages = bk.getPages();
+	this->type = bk.getType();
+}
+Book::~Book() {
+}
+string Book::getAuthor() const {
+	return this->author;
+}
+int Book::getDate_publication() const {
+	return this->date_pub;
+}
+string Book::getTitle() const {
+	return this->title;
+}
+string Book::getType() const {
+	return this->type;
+}
+int Book::getPages() const {
+	return num_pages;
+}
+void Book::setAuthor(const string &str) {
+	author = str;
+}
+void Book::setTitle(const string &str) {
+	title = str;
+}
+void Book::setDate(const int &date) {
+	date_pub = date;
+}
+void Book::setPages(const int &pages) {
+	num_pages = pages;
+}
+void Book::setType(const string &str) {
+	type = str;
+}
+istream& operator>>(istream &in, Book &bk) {
+	int temp=0;
+	string str="";
+	cout<<"Enter Date of Publication: ";
+	in>>temp;
+	while(temp<=1000) {
+		cerr<<endl<<"Please enter a valid year!";
+		in>>temp;
+	}
+	bk.setDate(temp);
+	cout<<endl<<"Enter number of pages of the book: ";
+	temp=0;
+	in>>temp;
+	while(temp<1) {
+		cerr<<endl<<"Please enter valid number of pages! "<<endl;
+		in>>temp;
+	}
+	bk.setPages(temp);
+	cout<<endl<<"Enter the Title: ";
+	in>>str;	
+	if(str.length()==0) {
+		cerr<<"Please enter a valid title!"<<endl;
+		in>>str;
+	}
+	bk.setTitle(str);
+	str.clear();
+	cout<<endl<<"Enter the Author's name: ";
+	in>>str;
+	if(str.length()<=0){
+		cerr<<"Pleas enter a valid author!"<<endl;
+		in>>str;
+	}
+	bk.setAuthor(str);
+	str.clear();
+	cout<<endl<<"Enter the tupe of book(  softcover, hardcover or digital	) ";
+	in>>str;
+	if(str.length()<=0) {
+		cerr<<"Please enter a valid string!"<<endl;
+		in>>str;
+	}
+	bk.setType(str);
+}
+ostream& operator<<(ostream &out,const Book &bk) {
+		out<<left<<setw(WIDTH_SIZE1)<<bk.getTitle();
+		out<<" "<<left<<setw(WIDTH_SIZE2)<<bk.getAuthor();
+		out<<" "<<left<<setw(WIDTH_SIZE3)<<bk.getDate_publication();
+		out<<" "<<left<<setw(WIDTH_SIZE2/2)<<bk.getType();
+		out<<" "<<left<<setw(WIDTH_SIZE3+2)<<bk.getPages();
+}
+
+Book& Book::operator=(const Book &bk) {
+	this->~Book();
+	this->setTitle(bk.getTitle());
+	this->setAuthor(bk.getAuthor());
+	this->setPages(bk.getPages());
+	this->setDate(bk.getDate_publication());
+	this->setType(bk.getType());
+	
+	return *this;
+}
+
+
+class Database {
+	vector<Book> list;
+public:
+	Database() {
+	}
+	Database(const Database &);
+	~Database();
+	void read_files(fstream &);
+	int getSize() const;
+	void addNewBook(const Book &);
+	Book operator[](const int& ) const;
+	void delete_book(const int &);
+	bool update(const int &);
+	friend ostream &operator<<(ostream &out, const Database &);
+};
+
+bool Database::update(const int &pos) {
+	int temp;
+	string str;
+	cout<<"Enter what do you wanna update? "<<endl;
+	cout<<"	1.Title"<<endl;
+	cout<<"	2.Author"<<endl;
+	cout<<"	3.Date of publication"<<endl;
+	cout<<"	4.Number of Pages"<<endl;
+	cout<<"	5.Type of cover"<<endl;
+	cout<<" 6.Cancel "<<endl;
+	cin>>temp;
+	switch(temp) {
+		case 1:
+			cout<<"Enter new Title:"<<endl;
+			cin>>str;
+			this->list[pos].setTitle(str);
+			return 0;
+			break;
+		case 2:
+			cout<<"Enter new Author:"<<endl;
+			cin>>str;
+			this->list[pos].setAuthor(str);
+			return 0;			
+			break;
+		case 4:
+			cout<<"Enter new number of pages:"<<endl;
+			cin>>temp;
+			this->list[pos].setPages(temp);
+			return 0;
+			break;
+		case 3:
+			cout<<"Enter new Date:"<<endl;
+			cin>>temp;
+			this->list[pos].setDate(temp);
+			return 0;			
+			break;
+		case 5:
+			cout<<"Enter new type:"<<endl;
+			cin>>str;
+			this->list[pos].setType(str);
+			return 0;
+			break;
+		case 6:
+			return false;
+	}
+}
+Database::Database(const Database &db){
+	if(list.size()>0) 
+		this->~Database();
+	for(int i=0;i<db.getSize();i++) {
+		this->list.push_back(db.list[i]);
+	}
+}
+Database::~Database() {
+	this->list.clear();
+}
+void Database::delete_book(const int& p) {
+	this->list.erase(this->list.begin()+p);
+}
+void Database::read_files(fstream& fin) { 
+	fin.seekg(0);
+	string temp;
+	int n=0;
+	Book b1;
+	while(fin.eof()==true) {
+		fin>>temp;	// to read a string through a whitespace
+		b1.setTitle(temp);	
+		
+		temp.clear();				
+		//fin>>ws;		to eat all the whitespaces in between
+		fin>>temp;
+		b1.setAuthor(temp);	 
+		
+		//fin>>ws;
+		fin>>n;
+		b1.setDate(n);
+		
+		temp.clear();
+		//fin>>ws;
+		fin>>temp;
+		b1.setType(temp);
+		
+		//fin>>ws;
+		fin>>n;
+		b1.setPages(n);
+		
+		list.push_back(b1);
+		
+		b1.~Book();
+	}
+}
+Book Database::operator[](const int& pos)const {
+	return this->list[pos];	
+}
+int Database::getSize() const {
+	return this->list.size();
+}
+
+ostream& operator<<(ostream &out, const Database &db) {
+	//cout<<setw(WIDTH_SIZE1) <<"Title"<<setw(WIDTH_SIZE1)<<"Author"<<setw(WIDTH_SIZE2)<<"Year"<<setw(WIDTH_SIZE1/2)<<"Book Type"<<setw(WIDTH_SIZE2+2)<<"Pages";
+	for(int i=0;i<db.getSize();i++) {
+		cout<<db.list[i];
+		cout<<endl;
+	}
+}
+
+void Database::addNewBook(const Book &bk) {
+	this->list.push_back(bk);
+}
+
+bool startMenu(Database &db1,fstream &);
+int Search(Database &db1);
+void Print_on_file(const Book &,fstream &, const int &);
+
+int main() {
+	Book b1;
+	Database db1;
+	string temp="";
+	fstream fin_out;
+	
+	cout<<"	Hi! Welcome to cpp books database created by pk"<<endl;
+	cout<<"For the starters please enter the name of database file"<<endl;
+	cin>>temp;
+	
+	fstream fin_out(temp, )
+	
+	if(fin_out.fail()==true) {
+		cerr<<"file opened incorrectly, aborting the program!"<<endl;
+		abort();
+	}
+	
+	db1.read_files(fin_out);	// in order to load database from txt to vector list.
+	
+	while(true) {
+		bool flag = startMenu(db1,fin_out);
+		if(flag==false) 
+			break;
+	}
+	system("cls");
+	cout<<"Thanks for using this library";
+	cout<<endl<<"Have a good day";
+	
+	fin_out.close();
+	return 0;
+}
+
+
+bool startMenu(Database &db1,fstream &fin_out) {
+		int i=0, pos=0;
+		int check = 0;
+		Book b1;
+		system("cls");
+		cout<<"Please choose from the following menu:"<<endl;
+		cout<<"		1.Add a new book record.		"<<endl;
+		cout<<"		2.Delete an existing record.	"<<endl;
+		cout<<"		3.Updating a book record.		"<<endl;
+		cout<<"		4.Search for book records.		"<<endl;
+		cout<<"		5.EXIT							"<<endl;
+		cout<<"Enter a integer from 1-4 (example 3 for updating, 4 for search and so on....) "<<endl;
+		cin>>i;
+	
+	switch(i) {
+		case 1:
+			system("cls");
+			pos = fin_out.eof();
+			cout<<"Enter the new Book record:"<<endl;
+			cin>>b1;
+			system("cls");
+			cout<<b1<<endl;
+			db1.addNewBook(b1);
+			Print_on_file(b1, fin_out, pos);
+			cout<<"Book added Successfully!"<<endl;
+			break;
+		case 2:
+			system("cls");
+			cout<<"Search an item for deleting: "<<endl;
+			while(true) {
+				pos = Search(db1);
+				if(pos == -2) {
+					cout<<"Book deleting failed!!"<<endl;
+					break;
+				}
+				else if(pos==-1)
+					continue;
+				else {
+					cout<<"Deleting this item: "<<endl<<db1.operator[](pos)<<endl;
+					db1.delete_book(pos);
+					Print_on_file(b1, fin_out, pos);
+					cout<<"Item deleted successfully!"<<endl;
+					break;
+				}
+			}
+			break;
+		case 3:
+			while(true) {
+				pos = Search(db1);
+				if(pos == -2) {
+					cout<<"Book updating failed!!"<<endl;
+					break;
+				}
+				else if(pos==-1)
+					continue;
+				else {
+					cout<<"Updating this book: "<<db1.operator[](pos).getTitle()<<endl;
+					db1.update(pos);
+					Print_on_file(b1, fin_out, pos);
+					cout<<"Book updated successfully!"<<endl;
+					break;
+				}
+			}
+			break;
+		case 4:
+			while(true) {
+				int pos = Search(db1);
+					if(pos==-2) 
+						break;
+					else if(pos!=-1) {
+						cout<<"The search results are: "<<endl;
+						cout<<db1.operator[](pos);
+						break;
+					}
+			}
+			cout<<endl;
+			break;
+		case 5: 
+			abort();
+			//cout<<db1;
+			break;
+		default:
+			cout<<"Option not valid, please choose from the given options";
+	}
+	cout<<endl<<endl<<"Do you want to revert to last menu?"<<endl<<"enter 1 for yes, any other number for no";
+	cin>>check;
+	
+	if(check==1)
+		return true;
+	else 
+		return false;
+}
+
+int Search(Database &db1) {
+	int temp,check=0;
+	system("cls");
+	cout<<"How do you want to search your book?"<<endl;
+	//cout<<"1. Search by number of pages."<<endl;
+	cout<<"1. Search by the Year"<<endl;
+	cout<<"2. Cancel"<<endl;
+	cin>>temp;
+	switch(temp){
+		case 1:
+			system("cls");
+			cout<<"Enter the year you want to search for the book"<<endl;
+			cin>>temp;
+			for(int i=0;i<db1.getSize();i++) {
+				if(db1.operator[](i).getDate_publication() == temp)
+					return i;
+			}
+			cout<<"Sorry no books found with year-"<<temp<<endl;
+			break;
+			case 2:
+				return -2;
+		default:
+			cout<<"Option not valid, please choose from the given options"<<endl;
+			return -1;
+	}
+	//System("cls");
+	cout<<"Do you want to revert to last menu?"<<endl<<"enter 1 for yes, any other number for no";
+	cin>>check;
+	if(check==1){
+		return -1;
+	}
+	else{
+		return -2;
+	}
+}
+void Print_on_file(const Book &bk,fstream &out, const int &pos) {
+	if(pos!=out.eof()) {
+		out.seekp(9*TOTAL_WIDTH_SIZE);
+	}
+	
+	//printing now:
+	out<<endl<<left<<setw(WIDTH_SIZE1)<<bk.getTitle();
+	out<<" "<<left<<setw(WIDTH_SIZE2)<<bk.getAuthor();
+	out<<" "<<left<<setw(WIDTH_SIZE3)<<bk.getDate_publication();
+	out<<" "<<left<<setw(WIDTH_SIZE2/2)<<bk.getType();
+	out<<" "<<left<<setw(WIDTH_SIZE3+2)<<bk.getPages()<<endl;
+}
